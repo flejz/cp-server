@@ -3,12 +3,19 @@ package tcp
 import (
 	"bufio"
 	"fmt"
+	"github.com/flejz/cp-server/internal/cache"
 	"net"
 	"strings"
 )
 
-func HandleConnection(c net.Conn) {
+type ConnHandler struct {
+	cache cache.Cache
+}
+
+func (connHandler *ConnHandler) Handle(c net.Conn) {
 	fmt.Printf("Serving %s\n", c.RemoteAddr().String())
+	cmdHandler := &CmdHandler{cache: connHandler.cache}
+
 	for {
 		netData, err := bufio.NewReader(c).ReadString('\n')
 		if err != nil {
@@ -16,12 +23,12 @@ func HandleConnection(c net.Conn) {
 			return
 		}
 
-		command := strings.TrimSpace(string(netData))
-		if command == "STOP" || command == "EXIT" {
+		cmd := strings.TrimSpace(string(netData))
+		if cmd == "STOP" || cmd == "EXIT" {
 			break
 		}
 
-		HandleCommand(c, command)
+		cmdHandler.handle(c, cmd)
 	}
 	c.Close()
 }

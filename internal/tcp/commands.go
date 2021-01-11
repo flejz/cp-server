@@ -1,28 +1,44 @@
 package tcp
 
 import (
+	"github.com/flejz/cp-server/internal/cache"
 	"net"
 	"strings"
 )
 
-func HandleCommand(c net.Conn, command string) {
-	cmd := strings.Trim(command, " ")
+type CmdHandler struct {
+	c     net.Conn
+	cache cache.Cache
+}
 
-	if cmd == "HELP" {
-		handleHelpCommand(c)
+func (cmdHandler *CmdHandler) write(msg string) {
+	cmdHandler.c.Write([]byte(msg))
+}
+
+func (cmdHandler *CmdHandler) handle(c net.Conn, cmd string) error {
+	parts := strings.Split(cmd, " ")
+	action := parts[0]
+
+	if action == "HELP" {
+		return cmdHandler.help()
+	} else if action == "LOGIN" {
+		return cmdHandler.login(parts[1], parts[2])
 	}
+
+	return nil
 }
 
-func writeToConn(c net.Conn, msg string) {
-	c.Write([]byte(msg))
-}
-
-func handleHelpCommand(c net.Conn) {
+func (cmdHandler *CmdHandler) help() error {
 	msg := `
-LOGIN              login you in
-SET key value      sets a new value to a key
-SET key            gets a value from a key
+LOGIN			logs you in
+SET	key value	sets a new value to a key
+GET	key		gets a value from a key
 	`
+	cmdHandler.write(msg)
+	return nil
+}
 
-	writeToConn(c, msg)
+func (cmdHandler *CmdHandler) login(usr, pwd string) error {
+	cmdHandler.write("Login successfull")
+	return nil
 }

@@ -5,18 +5,12 @@ import (
 	"github.com/flejz/cp-server/configs"
 	"github.com/flejz/cp-server/internal/tcp"
 	"log"
-	"math/rand"
 	"net"
 	"strconv"
-	"time"
 )
 
 const MIN = 1
 const MAX = 100
-
-func random() int {
-	return rand.Intn(MAX-MIN) + MIN
-}
 
 func main() {
 	config, configErr := configs.LoadServiceConfig()
@@ -28,14 +22,14 @@ func main() {
 	port := ":" + strconv.Itoa(config.Port)
 	l, err := net.Listen("tcp", port)
 
-	fmt.Printf("Listening on " + port + "\n")
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("Listening on " + port + "\n")
+
 	defer l.Close()
-	rand.Seed(time.Now().Unix())
+	connHandler := &tcp.ConnHandler{}
 
 	for {
 		conn, err := l.Accept()
@@ -43,6 +37,6 @@ func main() {
 			log.Fatal(err)
 		}
 
-		go tcp.HandleConnection(conn)
+		go connHandler.Handle(conn)
 	}
 }
