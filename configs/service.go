@@ -11,7 +11,7 @@ type ServiceConfig struct {
 	Port int
 }
 
-func LoadServiceConfig() (*ServiceConfig, error) {
+func Load() (*ServiceConfig, error) {
 	salt := os.Getenv("SALT")
 	port, portErr := strconv.Atoi(os.Getenv("PORT"))
 

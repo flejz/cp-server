@@ -3,23 +3,21 @@ package main
 import (
 	"fmt"
 	"github.com/flejz/cp-server/configs"
+	"github.com/flejz/cp-server/internal/cache"
 	"github.com/flejz/cp-server/internal/tcp"
 	"log"
 	"net"
 	"strconv"
 )
 
-const MIN = 1
-const MAX = 100
-
 func main() {
-	config, configErr := configs.LoadServiceConfig()
+	serviceConfig, serviceConfigErr := configs.Load()
 
-	if configErr != nil {
-		panic(configErr)
+	if serviceConfigErr != nil {
+		panic(serviceConfigErr)
 	}
 
-	port := ":" + strconv.Itoa(config.Port)
+	port := ":" + strconv.Itoa(serviceConfig.Port)
 	l, err := net.Listen("tcp", port)
 
 	if err != nil {
@@ -29,7 +27,18 @@ func main() {
 	fmt.Printf("Listening on " + port + "\n")
 
 	defer l.Close()
-	connHandler := &tcp.ConnHandler{}
+
+	authCache := &cache.Memory{Key: "auth"}
+	authCache.Init()
+
+	bufferCache := &cache.Memory{Key: "buff"}
+	bufferCache.Init()
+
+	connHandler := &tcp.ConnHandler{
+		AuthCache:     authCache,
+		BufferCache:   bufferCache,
+		ServiceConfig: serviceConfig,
+	}
 
 	for {
 		conn, err := l.Accept()
