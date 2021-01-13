@@ -4,14 +4,14 @@ import (
 	"fmt"
 )
 
-type InvalidCredentialsError struct{}
+type ExistsError struct{}
 
-func (k *InvalidCredentialsError) Error() string {
-	return fmt.Sprint("Credentials are invalid")
+func (e *ExistsError) Error() string {
+	return fmt.Sprint("Already exists")
 }
 
-type UserExistsError struct{}
+type InvalidError struct{}
 
-func (k *UserExistsError) Error() string {
-	return fmt.Sprint("User already exists")
+func (e *InvalidError) Error() string {
+	return fmt.Sprint("Invalid")
 }

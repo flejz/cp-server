@@ -11,14 +11,16 @@ import (
 
 type ConnHandler struct {
 	AuthCache     cache.Cache
+	SaltCache     cache.Cache
 	BufferCache   cache.Cache
 	ServiceConfig *configs.ServiceConfig
 }
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
-	cmdHandler := &CmdHandler{
+	mach := &Mach{
 		authCache:     connHandler.AuthCache,
+		saltCache:     connHandler.SaltCache,
 		bufferCache:   connHandler.BufferCache,
 		conn:          conn,
 		serviceConfig: connHandler.ServiceConfig,
@@ -36,10 +38,11 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 			break
 		}
 
-		cmdErr := cmdHandler.handle(conn, cmd)
+		cmdErr := mach.handle(conn, cmd)
 		if cmdErr != nil {
-			cmdHandler.Write(fmt.Sprintf("%s\n", cmdErr.Error()))
+			mach.Write(fmt.Sprintf("%s\n", cmdErr.Error()))
 		}
 	}
+	fmt.Printf("Closing %s\n", conn.RemoteAddr().String())
 	conn.Close()
 }

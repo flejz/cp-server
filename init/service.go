@@ -31,11 +31,15 @@ func main() {
 	authCache := &cache.Memory{Key: "auth"}
 	authCache.Init()
 
+	saltCache := &cache.Memory{Key: "auth"}
+	saltCache.Init()
+
 	bufferCache := &cache.Memory{Key: "buff"}
 	bufferCache.Init()
 
 	connHandler := &tcp.ConnHandler{
 		AuthCache:     authCache,
+		SaltCache:     saltCache,
 		BufferCache:   bufferCache,
 		ServiceConfig: serviceConfig,
 	}
