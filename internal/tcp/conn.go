@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/flejz/cp-server/configs"
 	"github.com/flejz/cp-server/internal/cache"
+	"github.com/flejz/cp-server/internal/model"
 	"net"
 	"strings"
 )
@@ -18,12 +19,11 @@ type ConnHandler struct {
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
-	mach := &Mach{
-		authCache:     connHandler.AuthCache,
-		saltCache:     connHandler.SaltCache,
-		bufferCache:   connHandler.BufferCache,
-		conn:          conn,
-		serviceConfig: connHandler.ServiceConfig,
+	sess := &model.Session{
+		AuthCache:     connHandler.AuthCache,
+		SaltCache:     connHandler.SaltCache,
+		BufferCache:   connHandler.BufferCache,
+		ServiceConfig: connHandler.ServiceConfig,
 	}
 
 	for {
@@ -38,9 +38,8 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 			break
 		}
 
-		cmdErr := mach.handle(conn, cmd)
-		if cmdErr != nil {
-			mach.Write(fmt.Sprintf("%s\n", cmdErr.Error()))
+		if err := ParseCmd(conn, sess, cmd); err != nil {
+			Write(conn, fmt.Sprintf("%s\n", err.Error()))
 		}
 	}
 	fmt.Printf("Closing %s\n", conn.RemoteAddr().String())
