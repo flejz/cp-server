@@ -1,7 +1,7 @@
 package configs
 
 import (
-	err "github.com/flejz/cp-server/internal/error"
+	"github.com/flejz/cp-server/internal/errors"
 	"os"
 	"strconv"
 )
@@ -14,7 +14,7 @@ func Load() (*ServiceConfig, error) {
 	port, portErr := strconv.Atoi(os.Getenv("PORT"))
 
 	if portErr != nil {
-		return nil, &err.ServiceConfigLoadError{Prop: "Port"}
+		return nil, &errors.ServiceConfigLoadError{Prop: "Port"}
 	}
 
 	return &ServiceConfig{Port: port}, nil

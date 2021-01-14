@@ -1,7 +1,7 @@
 package tcp
 
 import (
-	err "github.com/flejz/cp-server/internal/error"
+	"github.com/flejz/cp-server/internal/errors"
 	"github.com/flejz/cp-server/internal/model"
 	"net"
 	"strings"
@@ -24,7 +24,7 @@ SET    val
 `)
 	} else if action == "LOGIN" {
 		if len(parts) != 3 {
-			return &err.InvalidError{}
+			return &errors.InvalidError{}
 		}
 		if err := sess.Login(parts[1], parts[2]); err != nil {
 			return err
@@ -35,7 +35,7 @@ SET    val
 		return sess.Logout()
 	} else if action == "REG" {
 		if len(parts) != 3 {
-			return &err.InvalidError{}
+			return &errors.InvalidError{}
 		}
 		if err := sess.Register(parts[1], parts[2]); err != nil {
 			return err

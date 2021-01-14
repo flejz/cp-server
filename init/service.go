@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/flejz/cp-server/configs"
 	"github.com/flejz/cp-server/internal/cache"
+	"github.com/flejz/cp-server/internal/model"
 	"github.com/flejz/cp-server/internal/tcp"
 	"log"
 	"net"
@@ -28,8 +29,8 @@ func main() {
 
 	defer l.Close()
 
-	authCache := &cache.Memory{Key: "auth"}
-	authCache.Init()
+	userCache := &cache.Memory{Key: "auth"}
+	userCache.Init()
 
 	saltCache := &cache.Memory{Key: "auth"}
 	saltCache.Init()
@@ -37,11 +38,13 @@ func main() {
 	bufferCache := &cache.Memory{Key: "buff"}
 	bufferCache.Init()
 
-	connHandler := &tcp.ConnHandler{
-		AuthCache:     authCache,
-		SaltCache:     saltCache,
-		BufferCache:   bufferCache,
-		ServiceConfig: serviceConfig,
+	saltModel := model.Salt{Cache: saltCache}
+	userModel := model.User{Cache: userCache, SaltModel: saltModel}
+	bufferModel := model.Buffer{Cache: bufferCache}
+
+	connHandler := tcp.ConnHandler{
+		UserModel:   userModel,
+		BufferModel: bufferModel,
 	}
 
 	for {

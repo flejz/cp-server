@@ -3,27 +3,21 @@ package tcp
 import (
 	"bufio"
 	"fmt"
-	"github.com/flejz/cp-server/configs"
-	"github.com/flejz/cp-server/internal/cache"
 	"github.com/flejz/cp-server/internal/model"
 	"net"
 	"strings"
 )
 
 type ConnHandler struct {
-	AuthCache     cache.Cache
-	SaltCache     cache.Cache
-	BufferCache   cache.Cache
-	ServiceConfig *configs.ServiceConfig
+	UserModel   model.User
+	BufferModel model.Buffer
 }
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
 	sess := &model.Session{
-		AuthCache:     connHandler.AuthCache,
-		SaltCache:     connHandler.SaltCache,
-		BufferCache:   connHandler.BufferCache,
-		ServiceConfig: connHandler.ServiceConfig,
+		UserModel:   connHandler.UserModel,
+		BufferModel: connHandler.BufferModel,
 	}
 
 	for {
@@ -34,7 +28,7 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 		}
 
 		cmd := strings.TrimSpace(string(data))
-		if cmd == "STOP" || cmd == "EXIT" {
+		if strings.ToUpper(cmd) == "STOP" || strings.ToUpper(cmd) == "EXIT" {
 			break
 		}
 
