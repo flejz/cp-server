@@ -15,3 +15,9 @@ type InvalidError struct{}
 func (e *InvalidError) Error() string {
 	return fmt.Sprint("Invalid")
 }
+
+type InterruptionError struct{}
+
+func (e *InterruptionError) Error() string {
+	return fmt.Sprint("Interrupted")
+}

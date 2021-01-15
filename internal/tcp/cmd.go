@@ -2,49 +2,47 @@ package tcp
 
 import (
 	"github.com/flejz/cp-server/internal/errors"
-	"github.com/flejz/cp-server/internal/model"
 	"net"
-	"strings"
 )
 
 func Write(conn net.Conn, msg string) {
 	conn.Write([]byte(msg))
 }
 
-func ParseCmd(conn net.Conn, sess *model.Session, cmd string) error {
-	parts := strings.Split(cmd, " ")
-	action := strings.ToUpper(parts[0])
-
-	if action == "HELP" {
-		Write(conn, `GET
-LOGIN  usr pwd
-LOGOUT
-REG    usr pwd
-SET    val
-`)
-	} else if action == "LOGIN" {
-		if len(parts) != 3 {
+func Parse(conn net.Conn, sess *Session, action string, args []string) error {
+	switch action {
+	case "EXIT":
+		return &errors.InterruptionError{}
+	case "HELP":
+		Write(conn, "GET\n"+
+			"EXIT\n"+
+			"LOGIN  usr pwd\n"+
+			"LOGOUT\n"+
+			"REG    usr pwd\n"+
+			"SET    val\n")
+	case "LOGIN":
+		if len(args) != 2 {
 			return &errors.InvalidError{}
 		}
-		if err := sess.Login(parts[1], parts[2]); err != nil {
+		if err := sess.Login(args[0], args[1]); err != nil {
 			return err
 		}
 
 		Write(conn, "Logged\n")
-	} else if action == "LOGOUT" {
+	case "LOGOUT":
 		return sess.Logout()
-	} else if action == "REG" {
-		if len(parts) != 3 {
+	case "REG":
+		if len(args) != 2 {
 			return &errors.InvalidError{}
 		}
-		if err := sess.Register(parts[1], parts[2]); err != nil {
+		if err := sess.Register(args[0], args[1]); err != nil {
 			return err
 		}
 
 		Write(conn, "Registered\n")
-	} else if action == "SET" {
-		return sess.Set(parts[1:])
-	} else if action == "GET" {
+	case "SET":
+		return sess.Set(args)
+	case "GET":
 		val, err := sess.Get()
 
 		if err != nil {

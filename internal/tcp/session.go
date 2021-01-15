@@ -1,13 +1,14 @@
-package model
+package tcp
 
 import (
 	"github.com/flejz/cp-server/internal/errors"
+	"github.com/flejz/cp-server/internal/model"
 	"strings"
 )
 
 type Session struct {
-	BufferModel Buffer
-	UserModel   User
+	BufferModel model.Buffer
+	UserModel   model.User
 	logged      bool
 	usr         string
 }

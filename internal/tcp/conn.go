@@ -3,6 +3,7 @@ package tcp
 import (
 	"bufio"
 	"fmt"
+	"github.com/flejz/cp-server/internal/errors"
 	"github.com/flejz/cp-server/internal/model"
 	"net"
 	"strings"
@@ -15,7 +16,7 @@ type ConnHandler struct {
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
-	sess := &model.Session{
+	sess := &Session{
 		UserModel:   connHandler.UserModel,
 		BufferModel: connHandler.BufferModel,
 	}
@@ -28,14 +29,18 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 		}
 
 		cmd := strings.TrimSpace(string(data))
-		if strings.ToUpper(cmd) == "STOP" || strings.ToUpper(cmd) == "EXIT" {
-			break
-		}
+		args := strings.Split(cmd, " ")
+		action := strings.ToUpper(args[0])
 
-		if err := ParseCmd(conn, sess, cmd); err != nil {
-			Write(conn, fmt.Sprintf("%s\n", err.Error()))
+		if err := Parse(conn, sess, action, args[1:]); err != nil {
+			switch err.(type) {
+			case *errors.InterruptionError:
+				conn.Close()
+				fmt.Printf("Closing %s\n", conn.RemoteAddr().String())
+				return
+			default:
+				Write(conn, fmt.Sprintf("%s\n", err.Error()))
+			}
 		}
 	}
-	fmt.Printf("Closing %s\n", conn.RemoteAddr().String())
-	conn.Close()
 }
