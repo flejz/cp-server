@@ -10,12 +10,14 @@ type ServiceConfig struct {
 	Port int
 }
 
-func Load() (*ServiceConfig, error) {
+func (s *ServiceConfig) Load() error {
 	port, portErr := strconv.Atoi(os.Getenv("PORT"))
 
 	if portErr != nil {
-		return nil, &errors.ServiceConfigLoadError{Prop: "Port"}
+		return &errors.ServiceConfigLoadError{Prop: "Port"}
 	}
 
-	return &ServiceConfig{Port: port}, nil
+	s.Port = port
+
+	return nil
 }
