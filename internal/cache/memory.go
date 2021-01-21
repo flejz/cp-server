@@ -5,21 +5,21 @@ import (
 	"github.com/flejz/cp-server/internal/errors"
 )
 
-type Memory struct {
+type MemoryCache struct {
 	Key  string
 	pair map[string]string
 }
 
-func (m *Memory) key(key string) string {
+func (m *MemoryCache) key(key string) string {
 	return fmt.Sprintf("%s-%s", m.Key, key)
 }
 
-func (m *Memory) Init() error {
+func (m *MemoryCache) Init() error {
 	m.pair = make(map[string]string)
 	return nil
 }
 
-func (m *Memory) Get(key string) (string, error) {
+func (m *MemoryCache) Get(key string) (string, error) {
 	if key == "" {
 		return "", &errors.KeyNotSetError{}
 	}
@@ -32,7 +32,7 @@ func (m *Memory) Get(key string) (string, error) {
 	return value, nil
 }
 
-func (m *Memory) Set(key string, value string) error {
+func (m *MemoryCache) Set(key string, value string) error {
 	if key == "" {
 		return &errors.KeyNotSetError{}
 	}

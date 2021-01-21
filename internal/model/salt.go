@@ -6,13 +6,13 @@ import (
 )
 
 type Salt struct {
-	Cache cache.Cache
+	Cache cache.CacheInterface
 }
 
 func (self *Salt) Generate(key string) (string, error) {
 	salt := util.Salt()
 
-	if err := self.Cache.Set(key, salt); err != nil {
+	if err := self.Cache.Set(key, "", salt); err != nil {
 		return "", err
 	}
 
@@ -20,5 +20,5 @@ func (self *Salt) Generate(key string) (string, error) {
 }
 
 func (self *Salt) Get(key string) (string, error) {
-	return self.Cache.Get(key)
+	return self.Cache.Get(key, "")
 }

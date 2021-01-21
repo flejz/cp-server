@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-type ServiceConfig struct {
+type ServerConfig struct {
 	SQLitePath string
 	Port       int
 }
 
-func (c *ServiceConfig) Load() error {
+func (c *ServerConfig) Load() error {
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 
 	if err != nil {

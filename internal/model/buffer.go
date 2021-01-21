@@ -5,13 +5,13 @@ import (
 )
 
 type Buffer struct {
-	Cache cache.Cache
+	Cache cache.CacheInterface
 }
 
 func (self *Buffer) Get(key string) (string, error) {
-	return self.Cache.Get(key)
+	return self.Cache.Get(key, "default")
 }
 
 func (self *Buffer) Set(key, value string) error {
-	return self.Cache.Set(key, value)
+	return self.Cache.Set(key, "default", value)
 }

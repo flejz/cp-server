@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Cache     cache.Cache
+	Cache     cache.CacheInterface
 	SaltModel Salt
 }
 
@@ -18,7 +18,7 @@ func (self *User) Register(usr, pwd string) error {
 	}
 
 	hash := util.Hash(pwd, salt)
-	if err = self.Cache.Set(usr, hash); err != nil {
+	if err = self.Cache.Set(usr, "", hash); err != nil {
 		return err
 	}
 
@@ -31,7 +31,7 @@ func (self *User) Validate(usr, pwd string) error {
 		return err
 	}
 
-	hash, err := self.Cache.Get(usr)
+	hash, err := self.Cache.Get(usr, "")
 	if err != nil {
 		return err
 	} else if util.Hash(pwd, salt) != hash {

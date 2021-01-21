@@ -1,44 +1,54 @@
 package cache
 
 import (
-	"database/sql"
-	"fmt"
-	"github.com/flejz/cp-server/configs"
 	"github.com/flejz/cp-server/internal/errors"
-	"github.com/mattn/go-sqlite3"
-	"os"
+	"github.com/flejz/cp-server/internal/store"
 )
 
-type SQLite struct {
-	Key    string
-	config configs.ServerConfig
+type SQLiteCache struct {
+	Store      store.StoreInterface
+	DefaultKey string
 }
 
-func (s *SQLite) Init() error {
-	if _, err := os.Stat(s.Config.SQLitePath); os.IsNotExist(err) {
-		file, err := os.Create(s.Config.SQLitePath)
-		if err != nil {
-			panic(err)
-		}
-		file.Close()
+func (sqlite *SQLiteCache) Init() error {
+	return nil
+}
+
+func (sqlite *SQLiteCache) key(key string) string {
+	if key == "" {
+		return sqlite.DefaultKey
+	} else {
+		return key
 	}
 }
 
-func (s *SQLite) Get(key string) (string, error) {
-	if key == "" {
+func (sqlite *SQLiteCache) Get(usr, key string) (string, error) {
+	if usr == "" {
 		return "", &errors.KeyNotSetError{}
 	}
 
-	value := m.pair[m.key(key)]
-	if value == "" {
-		return "", &errors.KeyNotFoundError{Key: key}
+	selectFields := []string{"value"}
+	whereMap := map[string]interface{}{
+		"usr": usr,
+		"key": sqlite.key(key),
 	}
 
-	return value, nil
+	row, err := sqlite.Store.Query(selectFields, whereMap)
+	if err != nil {
+		return "", nil
+	}
+
+	for row.Next() {
+		var value string
+		row.Scan(&value)
+		return value, nil
+	}
+
+	return "", &errors.NotFoundStoreError{}
 }
 
-func (s *SQLite) Set(key string, value string) error {
-	if key == "" {
+func (sqlite *SQLiteCache) Set(usr, key, value string) error {
+	if usr == "" {
 		return &errors.KeyNotSetError{}
 	}
 
@@ -46,6 +56,31 @@ func (s *SQLite) Set(key string, value string) error {
 		return &errors.ValueNotSetError{}
 	}
 
-	m.pair[m.key(key)] = value
-	return nil
+	fieldMap := map[string]interface{}{
+		"usr":   usr,
+		"key":   sqlite.key(key),
+		"value": value,
+	}
+
+	value, err := sqlite.Get(usr, key)
+	switch err.(type) {
+	case *errors.NotFoundStoreError:
+		_, err := sqlite.Store.Insert(fieldMap)
+		return err
+	default:
+		if err != nil {
+			return err
+		}
+	}
+
+	fieldMap = map[string]interface{}{
+		"value": value,
+	}
+	whereMap := map[string]interface{}{
+		"usr": usr,
+		"key": sqlite.key(key),
+	}
+
+	_, err = sqlite.Store.Update(fieldMap, whereMap)
+	return err
 }
