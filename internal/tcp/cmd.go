@@ -43,7 +43,7 @@ func Parse(conn net.Conn, sess *Session, action string, args []string) error {
 	case "SET":
 		return sess.Set(args)
 	case "GET":
-		val, err := sess.Get()
+		val, err := sess.Get(args)
 
 		if err != nil {
 			return err

@@ -40,6 +40,7 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 				return
 			default:
 				Write(conn, fmt.Sprintf("%s\n", err.Error()))
+				Write(conn, err.(*errors.Error).ErrorStack())
 			}
 		}
 	}

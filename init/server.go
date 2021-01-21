@@ -43,9 +43,10 @@ func main() {
 	}
 
 	// init caches
-	bufferCache := &cache.SQLiteCache{bufferStore, "default"}
-	saltCache := &cache.SQLiteCache{saltStore, "default"}
-	userCache := &cache.SQLiteCache{userStore, "default"}
+	baseCache := cache.BaseCache{"default"}
+	bufferCache := &cache.SQLiteCache{baseCache, bufferStore}
+	saltCache := &cache.SQLiteCache{baseCache, saltStore}
+	userCache := &cache.SQLiteCache{baseCache, userStore}
 
 	if err := cache.Init([]cache.CacheInterface{
 		bufferCache,

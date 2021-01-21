@@ -47,6 +47,12 @@ func (store *BaseStore) Init() error {
 	fields := strings.Join(fieldList, ",")
 	cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (%s)", store.Table, fields)
 
+	fmt.Printf(">>> Init; %s\n", cmd)
+
+	if _, err := store.DB.Prepare(cmd); err != nil {
+		return err
+	}
+
 	if _, err := store.DB.Exec(cmd); err != nil {
 		return err
 	}
@@ -65,6 +71,7 @@ func (store *BaseStore) Query(selectFields []string, whereMap map[string]interfa
 	fields := strings.Join(selectFields, ",")
 	where := strings.Join(whereList, " AND ")
 	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", fields, store.Table, where)
+	fmt.Printf(">>> Query; %s\n", query)
 	return store.DB.Query(query, values...)
 }
 
@@ -80,7 +87,7 @@ func (store *BaseStore) Insert(fieldMap map[string]interface{}) (sql.Result, err
 	fields := strings.Join(fieldList, ",")
 	qmarks := store.spread(len(fieldList), ",")
 	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", store.Table, fields, qmarks)
-
+	fmt.Printf(">>> Insert; %s\n", cmd)
 	return store.DB.Exec(cmd, values...)
 }
 
@@ -102,6 +109,6 @@ func (store *BaseStore) Update(fieldMap map[string]interface{}, whereMap map[str
 	update := strings.Join(updateList, ",")
 	where := strings.Join(whereList, " AND ")
 	cmd := fmt.Sprintf("UPDATE %s SET %s WHERE (%s)", store.Table, update, where)
-
+	fmt.Printf(">>> Update; %s\n", cmd)
 	return store.DB.Exec(cmd, values...)
 }

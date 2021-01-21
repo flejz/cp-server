@@ -9,16 +9,16 @@ type Salt struct {
 	Cache cache.CacheInterface
 }
 
-func (self *Salt) Generate(key string) (string, error) {
+func (self *Salt) Generate(usr string) (string, error) {
 	salt := util.Salt()
 
-	if err := self.Cache.Set(key, "", salt); err != nil {
+	if err := self.Cache.Set(usr, "", salt); err != nil {
 		return "", err
 	}
 
 	return salt, nil
 }
 
-func (self *Salt) Get(key string) (string, error) {
-	return self.Cache.Get(key, "")
+func (self *Salt) Get(usr string) (string, error) {
+	return self.Cache.Get(usr, "")
 }

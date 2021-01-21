@@ -12,13 +12,28 @@ import (
 )
 
 func main() {
-	serviceConfig, serviceConfigErr := configs.Load()
+	// init config
+	config := &configs.ServiceConfig{}
 
-	if serviceConfigErr != nil {
-		panic(serviceConfigErr)
+	if err := configs.Load([]configs.Config{config}); err != nil {
+		panic(err)
 	}
 
-	port := ":" + strconv.Itoa(serviceConfig.Port)
+	// init caches
+	baseCache := cache.BaseCache{"default"}
+	bufferCache := &cache.MemoryCache{BaseCache: baseCache, Key: "buff"}
+	saltCache := &cache.MemoryCache{BaseCache: baseCache, Key: "auth"}
+	userCache := &cache.MemoryCache{BaseCache: baseCache, Key: "user"}
+
+	if err := cache.Init([]cache.CacheInterface{
+		bufferCache,
+		saltCache,
+		userCache,
+	}); err != nil {
+		panic(err)
+	}
+
+	port := ":" + strconv.Itoa(config.Port)
 	l, err := net.Listen("tcp", port)
 
 	if err != nil {
@@ -28,15 +43,6 @@ func main() {
 	fmt.Printf("Listening on " + port + "\n")
 
 	defer l.Close()
-
-	userCache := &cache.Memory{Key: "auth"}
-	userCache.Init()
-
-	saltCache := &cache.Memory{Key: "auth"}
-	saltCache.Init()
-
-	bufferCache := &cache.Memory{Key: "buff"}
-	bufferCache.Init()
 
 	saltModel := model.Salt{Cache: saltCache}
 	userModel := model.User{Cache: userCache, SaltModel: saltModel}

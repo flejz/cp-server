@@ -1,28 +1,24 @@
 package cache
 
 import (
+	"fmt"
 	"github.com/flejz/cp-server/internal/errors"
 	"github.com/flejz/cp-server/internal/store"
 )
 
 type SQLiteCache struct {
-	Store      store.StoreInterface
-	DefaultKey string
+	BaseCache
+	Store store.StoreInterface
 }
 
 func (sqlite *SQLiteCache) Init() error {
 	return nil
 }
 
-func (sqlite *SQLiteCache) key(key string) string {
-	if key == "" {
-		return sqlite.DefaultKey
-	} else {
-		return key
-	}
-}
-
 func (sqlite *SQLiteCache) Get(usr, key string) (string, error) {
+	fmt.Print(">>> GET\n")
+	fmt.Printf(">>> %s\n", usr)
+	fmt.Printf(">>> %s\n", sqlite.key(key))
 	if usr == "" {
 		return "", &errors.KeyNotSetError{}
 	}
@@ -48,6 +44,10 @@ func (sqlite *SQLiteCache) Get(usr, key string) (string, error) {
 }
 
 func (sqlite *SQLiteCache) Set(usr, key, value string) error {
+	fmt.Print(">>> SET\n")
+	fmt.Printf(">>> %s\n", usr)
+	fmt.Printf(">>> %s\n", sqlite.key(key))
+	fmt.Printf(">>> %s\n", value)
 	if usr == "" {
 		return &errors.KeyNotSetError{}
 	}

@@ -15,3 +15,22 @@ func Init(caches []CacheInterface) error {
 
 	return nil
 }
+
+type BaseCache struct {
+	DefaultKey string
+}
+
+func (cache *BaseCache) key(key string) string {
+	if key == "" {
+		return cache.DefaultKey
+	} else {
+		return key
+	}
+}
+func (cache *BaseCache) Get(usr, key string) (string, error) {
+	return "", nil
+}
+
+func (cache *BaseCache) Set(usr, key, value string) error {
+	return nil
+}

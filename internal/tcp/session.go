@@ -35,19 +35,32 @@ func (self *Session) Logout() error {
 	return nil
 }
 
-func (self *Session) Get() (string, error) {
-	if !self.logged {
+func (self *Session) Get(args []string) (string, error) {
+	if !self.logged || len(args) > 1 {
 		return "", &errors.InvalidError{}
 	}
 
-	val, _ := self.BufferModel.Get(self.usr)
+	key := ""
+
+	if len(args) > 0 {
+		key = args[0]
+	}
+
+	val, _ := self.BufferModel.Get(self.usr, key)
 	return val, nil
 }
 
-func (self *Session) Set(vals []string) error {
-	if !self.logged || len(vals) < 1 {
+func (self *Session) Set(args []string) error {
+	if !self.logged || len(args) < 1 {
 		return &errors.InvalidError{}
 	}
 
-	return self.BufferModel.Set(self.usr, strings.Join(vals, " "))
+	key := ""
+	index := 0
+
+	if len(args) > 1 {
+		key = args[0]
+		index = 1
+	}
+	return self.BufferModel.Set(self.usr, key, strings.Join(args[index:], " "))
 }

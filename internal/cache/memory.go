@@ -6,12 +6,13 @@ import (
 )
 
 type MemoryCache struct {
+	BaseCache
 	Key  string
 	pair map[string]string
 }
 
-func (m *MemoryCache) key(key string) string {
-	return fmt.Sprintf("%s-%s", m.Key, key)
+func (m *MemoryCache) usrKey(usr, key string) string {
+	return fmt.Sprintf("%s-%s-%s", m.Key, usr, m.key(key))
 }
 
 func (m *MemoryCache) Init() error {
@@ -19,12 +20,12 @@ func (m *MemoryCache) Init() error {
 	return nil
 }
 
-func (m *MemoryCache) Get(key string) (string, error) {
-	if key == "" {
+func (m *MemoryCache) Get(usr, key string) (string, error) {
+	if usr == "" {
 		return "", &errors.KeyNotSetError{}
 	}
 
-	value := m.pair[m.key(key)]
+	value := m.pair[m.usrKey(usr, key)]
 	if value == "" {
 		return "", &errors.KeyNotFoundError{Key: key}
 	}
@@ -32,8 +33,8 @@ func (m *MemoryCache) Get(key string) (string, error) {
 	return value, nil
 }
 
-func (m *MemoryCache) Set(key string, value string) error {
-	if key == "" {
+func (m *MemoryCache) Set(usr, key, value string) error {
+	if usr == "" {
 		return &errors.KeyNotSetError{}
 	}
 
@@ -41,6 +42,6 @@ func (m *MemoryCache) Set(key string, value string) error {
 		return &errors.ValueNotSetError{}
 	}
 
-	m.pair[m.key(key)] = value
+	m.pair[m.usrKey(usr, key)] = value
 	return nil
 }

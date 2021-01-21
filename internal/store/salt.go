@@ -12,10 +12,10 @@ func NewSaltStore(db *sql.DB) StoreInterface {
 	return &SaltStore{
 		BaseStore{
 			db,
-			"user",
+			"salt",
 			map[string]string{
-				"usr": "TEXT NOT NULL PRIMARY KEY",
-				"pwd": "TEXT",
+				"usr":  "TEXT NOT NULL PRIMARY KEY",
+				"salt": "TEXT",
 			},
 		},
 	}
