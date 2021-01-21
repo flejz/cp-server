@@ -1,14 +1,15 @@
 package tcp
 
 import (
+	"github.com/flejz/cp-server/internal/buffer"
 	"github.com/flejz/cp-server/internal/errors"
-	"github.com/flejz/cp-server/internal/model"
+	"github.com/flejz/cp-server/internal/user"
 	"strings"
 )
 
 type Session struct {
-	BufferModel model.Buffer
-	UserModel   model.User
+	BufferModel buffer.BufferModel
+	UserModel   user.UserModel
 	logged      bool
 	usr         string
 }

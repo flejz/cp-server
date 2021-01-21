@@ -8,7 +8,7 @@ import (
 
 type SQLiteCache struct {
 	BaseCache
-	Store store.StoreInterface
+	Store store.Store
 }
 
 func (sqlite *SQLiteCache) Init() error {

@@ -2,7 +2,6 @@ package cache
 
 import (
 	"fmt"
-	"github.com/flejz/cp-server/internal/errors"
 )
 
 type MemoryCache struct {
@@ -22,12 +21,12 @@ func (m *MemoryCache) Init() error {
 
 func (m *MemoryCache) Get(usr, key string) (string, error) {
 	if usr == "" {
-		return "", &errors.KeyNotSetError{}
+		return "", ErrInvalidKey
 	}
 
 	value := m.pair[m.usrKey(usr, key)]
 	if value == "" {
-		return "", &errors.KeyNotFoundError{Key: key}
+		return "", ErrInvalidKey
 	}
 
 	return value, nil
@@ -35,11 +34,11 @@ func (m *MemoryCache) Get(usr, key string) (string, error) {
 
 func (m *MemoryCache) Set(usr, key, value string) error {
 	if usr == "" {
-		return &errors.KeyNotSetError{}
+		return ErrInvalidKey
 	}
 
 	if value == "" {
-		return &errors.ValueNotSetError{}
+		return ErrInvalidKey
 	}
 
 	m.pair[m.usrKey(usr, key)] = value

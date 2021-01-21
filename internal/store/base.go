@@ -6,23 +6,6 @@ import (
 	"strings"
 )
 
-type StoreInterface interface {
-	Init() error
-	Insert(fieldMap map[string]interface{}) (sql.Result, error)
-	Update(fieldMap map[string]interface{}, whereMap map[string]interface{}) (sql.Result, error)
-	Query(selectFields []string, whereMap map[string]interface{}) (*sql.Rows, error)
-}
-
-func Init(stores []StoreInterface) error {
-	for _, store := range stores {
-		if err := store.Init(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 type BaseStore struct {
 	DB       *sql.DB
 	Table    string
@@ -44,18 +27,13 @@ func (store *BaseStore) Init() error {
 		fieldList = append(fieldList, fmt.Sprintf("%s %s", field, fieldType))
 	}
 
-	fields := strings.Join(fieldList, ",")
+	fields := strings.Join(fieldList, ", ")
 	cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (%s)", store.Table, fields)
-
-	fmt.Printf(">>> Init; %s\n", cmd)
-
-	if _, err := store.DB.Prepare(cmd); err != nil {
-		return err
-	}
 
 	if _, err := store.DB.Exec(cmd); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -73,6 +51,22 @@ func (store *BaseStore) Query(selectFields []string, whereMap map[string]interfa
 	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", fields, store.Table, where)
 	fmt.Printf(">>> Query; %s\n", query)
 	return store.DB.Query(query, values...)
+}
+
+func (store *BaseStore) QueryRow(selectFields []string, whereMap map[string]interface{}) *sql.Row {
+	whereList := []string{}
+	values := []interface{}{}
+
+	for field, value := range whereMap {
+		whereList = append(whereList, fmt.Sprintf("%s = ?", field))
+		values = append(values, value)
+	}
+
+	fields := strings.Join(selectFields, ",")
+	where := strings.Join(whereList, " AND ")
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", fields, store.Table, where)
+	fmt.Printf(">>> QueryRow; %s\n", query)
+	return store.DB.QueryRow(query, values...)
 }
 
 func (store *BaseStore) Insert(fieldMap map[string]interface{}) (sql.Result, error) {

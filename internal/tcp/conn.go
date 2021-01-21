@@ -3,15 +3,16 @@ package tcp
 import (
 	"bufio"
 	"fmt"
+	"github.com/flejz/cp-server/internal/buffer"
 	"github.com/flejz/cp-server/internal/errors"
-	"github.com/flejz/cp-server/internal/model"
+	"github.com/flejz/cp-server/internal/user"
 	"net"
 	"strings"
 )
 
 type ConnHandler struct {
-	UserModel   model.User
-	BufferModel model.Buffer
+	UserModel   user.UserModel
+	BufferModel buffer.BufferModel
 }
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
@@ -24,7 +25,6 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 	for {
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 
@@ -39,8 +39,8 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 				fmt.Printf("Closing %s\n", conn.RemoteAddr().String())
 				return
 			default:
-				Write(conn, fmt.Sprintf("%s\n", err.Error()))
-				Write(conn, err.(*errors.Error).ErrorStack())
+				fmt.Printf(">>> dang %+v %t\n", err, err)
+				Write(conn, fmt.Errorf("%v\n", err).Error())
 			}
 		}
 	}

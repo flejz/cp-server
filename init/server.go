@@ -5,7 +5,6 @@ import (
 	"github.com/flejz/cp-server/configs"
 	"github.com/flejz/cp-server/internal/cache"
 	"github.com/flejz/cp-server/internal/db"
-	"github.com/flejz/cp-server/internal/model"
 	"github.com/flejz/cp-server/internal/store"
 	"github.com/flejz/cp-server/internal/tcp"
 	"log"
