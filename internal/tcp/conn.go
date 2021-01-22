@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/flejz/cp-server/internal/buffer"
-	"github.com/flejz/cp-server/internal/errors"
 	"github.com/flejz/cp-server/internal/user"
 	"net"
 	"strings"
@@ -16,7 +15,7 @@ type ConnHandler struct {
 }
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
-	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
+	fmt.Printf("serving %s\n", conn.RemoteAddr().String())
 	sess := &Session{
 		UserModel:   connHandler.UserModel,
 		BufferModel: connHandler.BufferModel,
@@ -33,13 +32,12 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 		action := strings.ToUpper(args[0])
 
 		if err := Parse(conn, sess, action, args[1:]); err != nil {
-			switch err.(type) {
-			case *errors.InterruptionError:
+			switch err {
+			case ErrInterrupted:
 				conn.Close()
-				fmt.Printf("Closing %s\n", conn.RemoteAddr().String())
+				fmt.Printf("closing %s\n", conn.RemoteAddr().String())
 				return
 			default:
-				fmt.Printf(">>> dang %+v %t\n", err, err)
 				Write(conn, fmt.Errorf("%v\n", err).Error())
 			}
 		}

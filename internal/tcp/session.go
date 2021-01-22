@@ -2,7 +2,6 @@ package tcp
 
 import (
 	"github.com/flejz/cp-server/internal/buffer"
-	"github.com/flejz/cp-server/internal/errors"
 	"github.com/flejz/cp-server/internal/user"
 	"strings"
 )
@@ -38,7 +37,7 @@ func (self *Session) Logout() error {
 
 func (self *Session) Get(args []string) (string, error) {
 	if !self.logged || len(args) > 1 {
-		return "", &errors.InvalidError{}
+		return "", ErrInvalid
 	}
 
 	key := ""
@@ -53,7 +52,7 @@ func (self *Session) Get(args []string) (string, error) {
 
 func (self *Session) Set(args []string) error {
 	if !self.logged || len(args) < 1 {
-		return &errors.InvalidError{}
+		return ErrInvalid
 	}
 
 	key := ""
@@ -63,5 +62,6 @@ func (self *Session) Set(args []string) error {
 		key = args[0]
 		index = 1
 	}
+
 	return self.BufferModel.Set(self.usr, key, strings.Join(args[index:], " "))
 }

@@ -47,7 +47,7 @@ func Listen() {
 
 	defer l.Close()
 
-	fmt.Printf("Listening on " + port + "\n")
+	fmt.Printf("listening on " + port + "\n")
 
 	connHandler := ConnHandler{
 		UserModel:   userModel,

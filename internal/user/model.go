@@ -72,6 +72,10 @@ func (self UserModel) Validate(usr, pwd string) error {
 		return err
 	}
 
+	if user == nil {
+		return ErrInvalidCredentials
+	}
+
 	if hash := Hash(pwd, user.salt); hash != user.pwd {
 		return ErrInvalidCredentials
 	}
