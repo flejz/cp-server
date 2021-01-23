@@ -14,10 +14,9 @@ type BaseStore struct {
 
 func spread(length int, sep string) string {
 	qmarks := make([]string, length)
-	for i, _ := range qmarks {
+	for i := range qmarks {
 		qmarks[i] = "?"
 	}
-
 	return strings.Join(qmarks, sep)
 }
 
