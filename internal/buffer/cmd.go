@@ -1,23 +1,23 @@
-package tcp
+package buffer
 
 import (
-	"github.com/flejz/cp-server/internal/buffer"
-	"github.com/flejz/cp-server/internal/user"
 	"strings"
+
+	"github.com/flejz/cp-server/internal/user"
 )
 
-type Session struct {
-	BufferModel buffer.BufferModel
+type Cmd struct {
+	BufferModel BufferModel
 	UserModel   user.UserModel
 	logged      bool
 	usr         string
 }
 
-func (self *Session) Register(usr, pwd string) error {
+func (self *Cmd) Register(usr, pwd string) error {
 	return self.UserModel.Register(usr, pwd)
 }
 
-func (self *Session) Login(usr, pwd string) error {
+func (self *Cmd) Login(usr, pwd string) error {
 	if err := self.UserModel.Validate(usr, pwd); err != nil {
 		return err
 	}
@@ -28,14 +28,14 @@ func (self *Session) Login(usr, pwd string) error {
 	return nil
 }
 
-func (self *Session) Logout() error {
+func (self *Cmd) Logout() error {
 	self.logged = false
 	self.usr = ""
 
 	return nil
 }
 
-func (self *Session) Get(args []string) (string, error) {
+func (self *Cmd) Get(args []string) (string, error) {
 	if !self.logged || len(args) > 1 {
 		return "", ErrInvalid
 	}
@@ -50,7 +50,7 @@ func (self *Session) Get(args []string) (string, error) {
 	return val, nil
 }
 
-func (self *Session) Set(args []string) error {
+func (self *Cmd) Set(args []string) error {
 	if !self.logged || len(args) < 1 {
 		return ErrInvalid
 	}

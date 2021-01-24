@@ -8,8 +8,8 @@ import (
 	_ "github.com/proullon/ramsql/driver"
 )
 
-func Connect() (*sql.DB, error) {
-	config, err := Load()
+func Connect(defaults bool) (*sql.DB, error) {
+	config, err := Load(defaults)
 	if err != nil {
 		return nil, err
 	}

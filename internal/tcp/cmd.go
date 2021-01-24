@@ -2,13 +2,15 @@ package tcp
 
 import (
 	"net"
+
+	"github.com/flejz/cp-server/internal/buffer"
 )
 
 func Write(conn net.Conn, msg string) {
 	conn.Write([]byte(msg))
 }
 
-func Parse(conn net.Conn, sess *Session, action string, args []string) error {
+func Parse(conn net.Conn, cmd *buffer.Cmd, action string, args []string) error {
 	switch action {
 	case "EXIT":
 		return ErrInterrupted
@@ -23,13 +25,13 @@ func Parse(conn net.Conn, sess *Session, action string, args []string) error {
 		if len(args) != 2 {
 			return ErrInvalid
 		}
-		if err := sess.Login(args[0], args[1]); err != nil {
+		if err := cmd.Login(args[0], args[1]); err != nil {
 			return err
 		}
 
 		Write(conn, "logged\n")
 	case "LOGOUT":
-		if err := sess.Logout(); err != nil {
+		if err := cmd.Logout(); err != nil {
 			return err
 		}
 		Write(conn, "logged out\n")
@@ -37,15 +39,15 @@ func Parse(conn net.Conn, sess *Session, action string, args []string) error {
 		if len(args) != 2 {
 			return ErrInvalid
 		}
-		if err := sess.Register(args[0], args[1]); err != nil {
+		if err := cmd.Register(args[0], args[1]); err != nil {
 			return err
 		}
 
 		Write(conn, "registered\n")
 	case "SET":
-		return sess.Set(args)
+		return cmd.Set(args)
 	case "GET":
-		val, err := sess.Get(args)
+		val, err := cmd.Get(args)
 
 		if err != nil {
 			return err

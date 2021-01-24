@@ -6,6 +6,7 @@ import (
 
 type Type int
 
+const defaultSQLitePath = "cp-server.db"
 const (
 	Memory Type = iota
 	SQLite
@@ -17,7 +18,12 @@ type Config struct {
 	MemoryName string
 }
 
-func Load() (*Config, error) {
+func Load(defaults bool) (*Config, error) {
+	if defaults {
+		os.Setenv("DB_TYPE", "sqlite")
+		os.Setenv("SQLITE_PATH", defaultSQLitePath)
+	}
+
 	dbType := os.Getenv("DB_TYPE")
 	if dbType == "" {
 		return nil, ErrInvalidType

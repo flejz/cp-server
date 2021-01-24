@@ -3,10 +3,11 @@ package tcp
 import (
 	"bufio"
 	"fmt"
-	"github.com/flejz/cp-server/internal/buffer"
-	"github.com/flejz/cp-server/internal/user"
 	"net"
 	"strings"
+
+	"github.com/flejz/cp-server/internal/buffer"
+	"github.com/flejz/cp-server/internal/user"
 )
 
 type ConnHandler struct {
@@ -16,7 +17,7 @@ type ConnHandler struct {
 
 func (connHandler *ConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("serving %s\n", conn.RemoteAddr().String())
-	sess := &Session{
+	cmd := &buffer.Cmd{
 		UserModel:   connHandler.UserModel,
 		BufferModel: connHandler.BufferModel,
 	}
@@ -27,18 +28,18 @@ func (connHandler *ConnHandler) Handle(conn net.Conn) {
 			return
 		}
 
-		cmd := strings.TrimSpace(string(data))
-		args := strings.Split(cmd, " ")
+		raw := strings.TrimSpace(string(data))
+		args := strings.Split(raw, " ")
 		action := strings.ToUpper(args[0])
 
-		if err := Parse(conn, sess, action, args[1:]); err != nil {
+		if err := Parse(conn, cmd, action, args[1:]); err != nil {
 			switch err {
 			case ErrInterrupted:
 				conn.Close()
 				fmt.Printf("closing %s\n", conn.RemoteAddr().String())
 				return
 			default:
-				Write(conn, fmt.Errorf("%v\n", err).Error())
+				Write(conn, fmt.Errorf("%v", err).Error())
 			}
 		}
 	}

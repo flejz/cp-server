@@ -2,13 +2,14 @@ package tcp
 
 import (
 	"fmt"
+	"log"
+	"net"
+	"strconv"
+
 	"github.com/flejz/cp-server/internal/buffer"
 	"github.com/flejz/cp-server/internal/db"
 	"github.com/flejz/cp-server/internal/store"
 	"github.com/flejz/cp-server/internal/user"
-	"log"
-	"net"
-	"strconv"
 )
 
 func Listen() {
@@ -18,7 +19,7 @@ func Listen() {
 	}
 
 	// init db
-	db, err := db.Connect()
+	db, err := db.Connect(false)
 	if err != nil {
 		panic(err)
 	}

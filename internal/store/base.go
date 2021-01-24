@@ -48,7 +48,6 @@ func (store *BaseStore) Query(selectFields []string, whereMap map[string]interfa
 	fields := strings.Join(selectFields, ",")
 	where := strings.Join(whereList, " AND ")
 	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", fields, store.Table, where)
-	fmt.Printf(">>> Query; %s\n", query)
 	return store.DB.Query(query, values...)
 }
 
@@ -64,7 +63,6 @@ func (store *BaseStore) QueryRow(selectFields []string, whereMap map[string]inte
 	fields := strings.Join(selectFields, ",")
 	where := strings.Join(whereList, " AND ")
 	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", fields, store.Table, where)
-	fmt.Printf(">>> QueryRow; %s %s %s %s\n", query, selectFields, whereMap, values)
 	return store.DB.QueryRow(query, values...)
 }
 
@@ -80,7 +78,6 @@ func (store *BaseStore) Insert(fieldMap map[string]interface{}) (sql.Result, err
 	fields := strings.Join(fieldList, ",")
 	qmarks := spread(len(fieldList), ",")
 	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", store.Table, fields, qmarks)
-	fmt.Printf(">>> Insert; %s %s %s\n", cmd, fieldMap, values)
 	return store.DB.Exec(cmd, values...)
 }
 
@@ -102,6 +99,5 @@ func (store *BaseStore) Update(fieldMap map[string]interface{}, whereMap map[str
 	update := strings.Join(updateList, ",")
 	where := strings.Join(whereList, " AND ")
 	cmd := fmt.Sprintf("UPDATE %s SET %s WHERE %s", store.Table, update, where)
-	fmt.Printf(">>> Update; %s %s %s %s\n", cmd, updateList, whereList, values)
 	return store.DB.Exec(cmd, values...)
 }
