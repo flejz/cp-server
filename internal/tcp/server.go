@@ -7,19 +7,21 @@ import (
 	"strconv"
 
 	"github.com/flejz/cp-server/internal/buffer"
+	"github.com/flejz/cp-server/internal/config"
 	"github.com/flejz/cp-server/internal/db"
 	"github.com/flejz/cp-server/internal/store"
 	"github.com/flejz/cp-server/internal/user"
 )
 
+// Listen starts the tcp server
 func Listen() {
-	config, err := Load()
+	cfg, err := config.Init()
 	if err != nil {
 		panic(err)
 	}
 
 	// init db
-	db, err := db.Connect(false)
+	db, err := db.Open(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -27,19 +29,19 @@ func Listen() {
 	defer db.Close()
 
 	// init stores
-	bufferStore := buffer.NewBufferStore(db)
-	userStore := user.NewUserStore(db)
+	buffStore := buffer.NewBufferStore(db)
+	usrStore := user.NewUserStore(db)
 
-	if err := store.Init([]store.Store{bufferStore, userStore}); err != nil {
+	if err := store.Init([]store.Store{buffStore, usrStore}); err != nil {
 		panic(err)
 	}
 
 	// init models
-	bufferModel := buffer.BufferModel{bufferStore}
-	userModel := user.UserModel{userStore}
+	buffMdl := buffer.BufferModel{Store: buffStore}
+	usrMdl := user.UserModel{Store: usrStore}
 
 	// getting proper ports
-	port := ":" + strconv.Itoa(config.Port)
+	port := ":" + strconv.Itoa(cfg.TCP.Port)
 	l, err := net.Listen("tcp", port)
 
 	if err != nil {
@@ -51,8 +53,8 @@ func Listen() {
 	fmt.Printf("listening on " + port + "\n")
 
 	connHandler := ConnHandler{
-		UserModel:   userModel,
-		BufferModel: bufferModel,
+		buffMdl,
+		usrMdl,
 	}
 
 	for {

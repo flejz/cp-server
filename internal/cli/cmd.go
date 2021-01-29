@@ -77,7 +77,7 @@ func init() {
 
 func initCmd() *buffer.Cmd {
 	// init db
-	db, err := db.Connect(true)
+	db, err := db.Connect()
 	if err != nil {
 		panic(err)
 	}

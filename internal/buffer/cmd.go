@@ -7,18 +7,18 @@ import (
 )
 
 type Cmd struct {
-	BufferModel BufferModel
-	UserModel   user.UserModel
-	logged      bool
-	usr         string
+	buffMdl BufferModel
+	usrMdl  user.UserModel
+	logged  bool
+	usr     string
 }
 
 func (self *Cmd) Register(usr, pwd string) error {
-	return self.UserModel.Register(usr, pwd)
+	return self.usrMdl.Register(usr, pwd)
 }
 
 func (self *Cmd) Login(usr, pwd string) error {
-	if err := self.UserModel.Validate(usr, pwd); err != nil {
+	if err := self.usrMdl.Validate(usr, pwd); err != nil {
 		return err
 	}
 
@@ -46,7 +46,7 @@ func (self *Cmd) Get(args []string) (string, error) {
 		key = args[0]
 	}
 
-	val, _ := self.BufferModel.Get(self.usr, key)
+	val, _ := self.buffMdl.Get(self.usr, key)
 	return val, nil
 }
 
@@ -63,5 +63,5 @@ func (self *Cmd) Set(args []string) error {
 		index = 1
 	}
 
-	return self.BufferModel.Set(self.usr, key, strings.Join(args[index:], " "))
+	return self.buffMdl.Set(self.usr, key, strings.Join(args[index:], " "))
 }
