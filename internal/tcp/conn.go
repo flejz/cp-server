@@ -15,11 +15,11 @@ type ConnHandler struct {
 	usrMdl  user.UserModel
 }
 
-func HdlConn(buffMdl buffer.BufferModel, usrMdl user.UserModel) (conn net.Conn) {
+func (c *ConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("serving %s\n", conn.RemoteAddr().String())
 	cmd := &buffer.Cmd{
-		usrMdl:  usrMdl,
-		buffMdl: buffMdl,
+		BuffMdl: c.buffMdl,
+		UsrMdl:  c.usrMdl,
 	}
 
 	for {

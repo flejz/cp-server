@@ -1,4 +1,7 @@
-dev: dev-sqlite
+dev: dev-mem
+
+dev-mem:
+	reflex -r "\.go" -s -- bash -c "DB_TYPE=mem MEM_NAME=test PORT=2000 SALT=dev go run cmd/tcpserver/main.go"
 
 dev-sqlite:
 	reflex -r "\.go" -s -- bash -c "DB_TYPE=sqlite PORT=2000 SALT=dev go run cmd/tcpserver/main.go"
