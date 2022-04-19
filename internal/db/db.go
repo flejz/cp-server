@@ -25,5 +25,5 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 
 		return sql.Open("sqlite3", cfg.DB.Path)
 	}
-	return nil, nil
+	return nil, ErrInvalidDBMode
 }

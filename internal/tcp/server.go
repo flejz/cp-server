@@ -9,7 +9,7 @@ import (
 	"github.com/flejz/cp-server/internal/buffer"
 	"github.com/flejz/cp-server/internal/config"
 	"github.com/flejz/cp-server/internal/db"
-	"github.com/flejz/cp-server/internal/store"
+	"github.com/flejz/cp-server/internal/repository"
 	"github.com/flejz/cp-server/internal/user"
 )
 
@@ -28,37 +28,37 @@ func Listen() {
 
 	defer db.Close()
 
-	// init stores
-	buffStore := buffer.NewBufferStore(db)
-	usrStore := user.NewUserStore(db)
+	// init repositorys
+	bufferRepository := buffer.NewBufferRepository(db)
+	usrRepository := user.NewUserRepository(db)
 
-	if err := store.Init([]store.Store{buffStore, usrStore}); err != nil {
+	if err := repository.Init([]repository.Repository{bufferRepository, usrRepository}); err != nil {
 		panic(err)
 	}
 
 	// init models
-	buffMdl := buffer.BufferModel{Store: buffStore}
-	usrMdl := user.UserModel{Store: usrStore}
+	bufferService := buffer.BufferService{Repository: bufferRepository}
+	usrService := user.UserService{Repository: usrRepository}
 
 	// getting proper ports
 	port := ":" + strconv.Itoa(cfg.TCP.Port)
-	l, err := net.Listen("tcp", port)
+	socket, err := net.Listen("tcp", port)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer l.Close()
+	defer socket.Close()
 
 	fmt.Printf("listening on " + port + "\n")
 
-	connHandler := ConnHandler{
-		buffMdl,
-		usrMdl,
+	connHandler := TCPConnHandler{
+		bufferService,
+		usrService,
 	}
 
 	for {
-		conn, err := l.Accept()
+		conn, err := socket.Accept()
 		if err != nil {
 			log.Fatal(err)
 		}

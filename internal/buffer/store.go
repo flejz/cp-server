@@ -2,16 +2,16 @@ package buffer
 
 import (
 	"database/sql"
-	"github.com/flejz/cp-server/internal/store"
+	"github.com/flejz/cp-server/internal/repository"
 )
 
-type BufferStore struct {
-	store.BaseStore
+type BufferRepository struct {
+	repository.BaseRepository
 }
 
-func NewBufferStore(db *sql.DB) store.Store {
-	return &BufferStore{
-		store.BaseStore{
+func NewBufferRepository(db *sql.DB) repository.Repository {
+	return &BufferRepository{
+		repository.BaseRepository{
 			db,
 			"buffer",
 			map[string]string{

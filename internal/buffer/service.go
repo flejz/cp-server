@@ -2,12 +2,13 @@ package buffer
 
 import (
 	"database/sql"
-	"github.com/flejz/cp-server/internal/store"
 	"strings"
+
+	"github.com/flejz/cp-server/internal/repository"
 )
 
-type BufferModel struct {
-	Store store.Store
+type BufferService struct {
+	Repository repository.Repository
 }
 
 func keyid(key string) string {
@@ -18,14 +19,14 @@ func keyid(key string) string {
 	}
 }
 
-func (self BufferModel) Get(usr, key string) (string, error) {
+func (self BufferService) Get(usr, key string) (string, error) {
 	fieldList := []string{"value"}
 	whereMap := map[string]interface{}{
 		"usr":   usr,
 		"keyid": keyid(key),
 	}
 
-	row := self.Store.QueryRow(fieldList, whereMap)
+	row := self.Repository.QueryRow(fieldList, whereMap)
 
 	if err := row.Err(); err != nil {
 		return "", err
@@ -44,7 +45,7 @@ func (self BufferModel) Get(usr, key string) (string, error) {
 	return value, nil
 }
 
-func (self BufferModel) Set(usr, key, value string) error {
+func (self BufferService) Set(usr, key, value string) error {
 	cachedValue, err := self.Get(usr, key)
 	if err != nil {
 		return err
@@ -58,7 +59,7 @@ func (self BufferModel) Set(usr, key, value string) error {
 			"keyid": keyid(key),
 		}
 
-		if _, err := self.Store.Update(fieldMap, whereMap); err != nil {
+		if _, err := self.Repository.Update(fieldMap, whereMap); err != nil {
 			return err
 		}
 
@@ -70,7 +71,7 @@ func (self BufferModel) Set(usr, key, value string) error {
 		"value": value,
 	}
 
-	if _, err := self.Store.Insert(fieldMap); err != nil {
+	if _, err := self.Repository.Insert(fieldMap); err != nil {
 		return err
 	}
 

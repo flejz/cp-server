@@ -6,7 +6,7 @@ import (
 
 	"github.com/flejz/cp-server/internal/buffer"
 	"github.com/flejz/cp-server/internal/db"
-	"github.com/flejz/cp-server/internal/store"
+	"github.com/flejz/cp-server/internal/repository"
 	"github.com/flejz/cp-server/internal/user"
 	"github.com/spf13/cobra"
 )
@@ -82,20 +82,20 @@ func initCmd() *buffer.Cmd {
 		panic(err)
 	}
 
-	// init stores
-	bufferStore := buffer.NewBufferStore(db)
-	userStore := user.NewUserStore(db)
+	// init repositorys
+	bufferRepository := buffer.NewBufferRepository(db)
+	userRepository := user.NewUserRepository(db)
 
-	if err := store.Init([]store.Store{bufferStore, userStore}); err != nil {
+	if err := repository.Init([]repository.Repository{bufferRepository, userRepository}); err != nil {
 		panic(err)
 	}
 
 	// init models
-	bufferModel := buffer.BufferModel{bufferStore}
-	userModel := user.UserModel{userStore}
+	bufferService := buffer.BufferService{bufferRepository}
+	userService := user.UserService{userRepository}
 	return &buffer.Cmd{
-		BufferModel: bufferModel,
-		UserModel:   userModel,
+		BufferService: bufferService,
+		UserService:   userService,
 	}
 }
 

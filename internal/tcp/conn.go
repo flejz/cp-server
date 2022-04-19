@@ -10,16 +10,16 @@ import (
 	"github.com/flejz/cp-server/internal/user"
 )
 
-type ConnHandler struct {
-	buffMdl buffer.BufferModel
-	usrMdl  user.UserModel
+type TCPConnHandler struct {
+	bufferService buffer.BufferService
+	usrService    user.UserService
 }
 
-func (c *ConnHandler) Handle(conn net.Conn) {
+func (c *TCPConnHandler) Handle(conn net.Conn) {
 	fmt.Printf("serving %s\n", conn.RemoteAddr().String())
 	cmd := &buffer.Cmd{
-		BuffMdl: c.buffMdl,
-		UsrMdl:  c.usrMdl,
+		BufferService: c.bufferService,
+		UsrService:    c.usrService,
 	}
 
 	for {

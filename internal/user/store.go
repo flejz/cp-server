@@ -2,16 +2,16 @@ package user
 
 import (
 	"database/sql"
-	"github.com/flejz/cp-server/internal/store"
+	"github.com/flejz/cp-server/internal/repository"
 )
 
-type UserStore struct {
-	store.BaseStore
+type UserRepository struct {
+	repository.BaseRepository
 }
 
-func NewUserStore(db *sql.DB) store.Store {
-	return &UserStore{
-		store.BaseStore{
+func NewUserRepository(db *sql.DB) repository.Repository {
+	return &UserRepository{
+		repository.BaseRepository{
 			db,
 			"user",
 			map[string]string{
