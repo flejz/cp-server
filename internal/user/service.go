@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+
 	"github.com/flejz/cp-server/internal/repository"
 )
 
@@ -12,17 +13,17 @@ type User struct {
 }
 
 type UserService struct {
-	Repository repository.Repository
+	Repository *repository.Repository
 }
 
-func (self UserService) Get(usr string) (*User, error) {
+func (s *UserService) Get(usr string) (*User, error) {
 	fieldList := []string{"pwd", "salt"}
 	whereMap := map[string]interface{}{
 		"usr": usr,
 	}
 
 	user := &User{usr, "", ""}
-	row := self.Repository.QueryRow(fieldList, whereMap)
+	row := (*s.Repository).QueryRow(fieldList, whereMap)
 
 	if err := row.Err(); err != nil {
 		return nil, err
@@ -40,8 +41,8 @@ func (self UserService) Get(usr string) (*User, error) {
 	return user, nil
 }
 
-func (self UserService) Register(usr, pwd string) error {
-	user, err := self.Get(usr)
+func (s *UserService) Register(usr, pwd string) error {
+	user, err := s.Get(usr)
 	if err != nil {
 		return err
 	}
@@ -59,15 +60,15 @@ func (self UserService) Register(usr, pwd string) error {
 		"salt": salt,
 	}
 
-	if _, err = self.Repository.Insert(fieldMap); err != nil {
+	if _, err = (*s.Repository).Insert(fieldMap); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (self UserService) Validate(usr, pwd string) error {
-	user, err := self.Get(usr)
+func (s *UserService) Validate(usr, pwd string) error {
+	user, err := s.Get(usr)
 	if err != nil {
 		return err
 	}

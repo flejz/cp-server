@@ -8,7 +8,7 @@ import (
 )
 
 type BufferService struct {
-	Repository repository.Repository
+	Repository *repository.Repository
 }
 
 func keyid(key string) string {
@@ -19,14 +19,14 @@ func keyid(key string) string {
 	}
 }
 
-func (self BufferService) Get(usr, key string) (string, error) {
+func (s *BufferService) Get(usr, key string) (string, error) {
 	fieldList := []string{"value"}
 	whereMap := map[string]interface{}{
 		"usr":   usr,
 		"keyid": keyid(key),
 	}
 
-	row := self.Repository.QueryRow(fieldList, whereMap)
+	row := (*s.Repository).QueryRow(fieldList, whereMap)
 
 	if err := row.Err(); err != nil {
 		return "", err
@@ -45,8 +45,8 @@ func (self BufferService) Get(usr, key string) (string, error) {
 	return value, nil
 }
 
-func (self BufferService) Set(usr, key, value string) error {
-	cachedValue, err := self.Get(usr, key)
+func (s BufferService) Set(usr, key, value string) error {
+	cachedValue, err := s.Get(usr, key)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (self BufferService) Set(usr, key, value string) error {
 			"keyid": keyid(key),
 		}
 
-		if _, err := self.Repository.Update(fieldMap, whereMap); err != nil {
+		if _, err := (*s.Repository).Update(fieldMap, whereMap); err != nil {
 			return err
 		}
 
@@ -71,7 +71,7 @@ func (self BufferService) Set(usr, key, value string) error {
 		"value": value,
 	}
 
-	if _, err := self.Repository.Insert(fieldMap); err != nil {
+	if _, err := (*s.Repository).Insert(fieldMap); err != nil {
 		return err
 	}
 

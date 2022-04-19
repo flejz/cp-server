@@ -37,8 +37,8 @@ func Listen() {
 	}
 
 	// init models
-	bufferService := buffer.BufferService{Repository: bufferRepository}
-	usrService := user.UserService{Repository: usrRepository}
+	bufferService := &buffer.BufferService{Repository: &bufferRepository}
+	usrService := &user.UserService{Repository: &usrRepository}
 
 	// getting proper ports
 	port := ":" + strconv.Itoa(cfg.TCP.Port)
